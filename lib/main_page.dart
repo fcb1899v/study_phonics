@@ -69,10 +69,7 @@ class _MainPageState extends State<MainPage> {
       Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back_ios,
-              color: whiteColor
-            ),
+            icon: Icon(Icons.arrow_back_ios, color: whiteColor),
             onPressed: () => Navigator.pop(context, true),
           ),
           title: appBarTitle(),
@@ -81,16 +78,16 @@ class _MainPageState extends State<MainPage> {
           padding: mainPadding(width),
           child: Column(children: [
             Spacer(flex: 1),
-            alphabetChar(width, char),
+            charView(width, char),
             Spacer(flex: 1),
             Row(children: [
               alphabetWord(0),
               Spacer(),
               alphabetWord(1),
             ]),
-            SizedBox(height: width * alphabetSpaceRate),
+            SizedBox(height: width * wordSpaceRate),
             operationButtons(),
-            Spacer(flex: 3),
+            Spacer(flex: 2),
             if (Platform.isAndroid) adMobWidget(context, myBanner!),
           ]),
         ),
@@ -98,24 +95,33 @@ class _MainPageState extends State<MainPage> {
 
   Widget alphabetWord(int num) =>
       SizedBox(
-        width: width * alphabetWidthRate,
+        width: width * wordWidthRate,
         child: Column(children: [
-          TextButton(
-            onPressed: () => sound[num].speakText(context),
-            child: wordView(width, word, num),
-          ),
-          SizedBox(height: width * alphabetSpaceRate),
-          TextButton(
-            onPressed: () => sound[num].speakText(context),
-            child: pictureView(width, picture[num]),
-          ),
-          SizedBox(height: width * alphabetSpaceRate),
-          ElevatedButton(
-            onPressed: () => sound[num].speakText(context),
-            style: audioButtonStyle(),
-            child: audioButton(width)
-          ),
+          wordButton(num),
+          SizedBox(height: width * wordSpaceRate),
+          pictureButton(num),
+          SizedBox(height: width * wordSpaceRate),
+          audioButton(num)
         ])
+      );
+
+  TextButton wordButton(int num) =>
+      TextButton(
+        onPressed: () => sound[num].speakText(context),
+        child: wordView(width, word, num),
+      );
+
+  TextButton pictureButton(int num) =>
+      TextButton(
+        onPressed: () => sound[num].speakText(context),
+        child: pictureView(width, picture[num]),
+      );
+
+  ElevatedButton audioButton(int num) =>
+      ElevatedButton(
+          onPressed: () => sound[num].speakText(context),
+          style: audioButtonStyle(),
+          child: audioIcon(width)
       );
 
   Widget operationButtons() =>
@@ -124,31 +130,40 @@ class _MainPageState extends State<MainPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
-              onPressed: () => _setReturn(),
-              style: operationButtonStyle(),
-              child: operationButton(width, Icons.keyboard_return)
-            ),
-            Spacer(),
-            ElevatedButton(
-              onPressed: () => _setShuffle(),
-              style: operationButtonStyle(),
-              child: operationButton(width, Icons.shuffle)
-            ),
-            Spacer(),
-            ElevatedButton(
-              onPressed: () => _setBack(),
-              style: operationButtonStyle(),
-              child: operationButton(width, Icons.arrow_back)
-            ),
-            Spacer(),
-            ElevatedButton(
-              onPressed: () => _setForward(),
-              style: operationButtonStyle(),
-              child: operationButton(width, Icons.arrow_forward)
-            ),
+            returnButton(),
+            Spacer(), shuffleButton(),
+            Spacer(), backButton(),
+            Spacer(), forwardButton(),
           ]
         ),
+      );
+
+  ElevatedButton returnButton() =>
+      ElevatedButton(
+        onPressed: () => _setReturn(),
+        style: operationButtonStyle(),
+        child: operationIcon(width, Icons.keyboard_return)
+      );
+
+  ElevatedButton shuffleButton() =>
+      ElevatedButton(
+        onPressed: () => _setShuffle(),
+        style: operationButtonStyle(),
+        child: operationIcon(width, Icons.shuffle)
+      );
+
+  ElevatedButton backButton() =>
+      ElevatedButton(
+        onPressed: () => _setBack(),
+        style: operationButtonStyle(),
+        child: operationIcon(width, Icons.arrow_back)
+      );
+
+  ElevatedButton forwardButton() =>
+      ElevatedButton(
+        onPressed: () => _setForward(),
+        style: operationButtonStyle(),
+        child: operationIcon(width, Icons.arrow_forward)
       );
 
   _setReturn() {
@@ -191,7 +206,7 @@ class _MainPageState extends State<MainPage> {
       picture = phonicsList[index].phonicsPicture();
       sound = word.wordSound();
     });
-    "$char, ${word[0]}${word[1]}${word[2]}, ${word[3]}${word[4]}${word[5]}".debugPrint();
+    "$char, ${word.printWord()}".debugPrint();
   }
 }
 

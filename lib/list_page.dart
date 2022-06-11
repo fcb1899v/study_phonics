@@ -70,7 +70,7 @@ class ListPageState extends State<ListPage> {
             crossAxisSpacing: listMargin, // 縦スペース
             mainAxisSpacing: listMargin, // 横スペース
             //shrinkWrap: true,
-            children: List.generate(numberPhonics, (i) => gridWordList(i))
+            children: List.generate(numberPhonics, (i) => gridWordList(i)),
           ),
         ),
       );

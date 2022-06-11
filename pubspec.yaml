@@ -26,11 +26,6 @@ dev_dependencies:
   # App Splash
   flutter_native_splash: ^2.2.3
 
-flutter:
-  uses-material-design: true
-  assets:
-    - assets/image/
-
 flutter_icons:
   image_path: "assets/icon/appIcon.png"
   android: true
@@ -42,8 +37,11 @@ flutter_native_splash:
   image: assets/icon/splush.png
   color: "03a9f4"
 
-fonts:
-  - family: sfPro
-    fonts:
-      - asset: assets/fonts/SF-Pro.ttf
-
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/image/
+  fonts:
+    - family: sfPro
+      fonts:
+        - asset: assets/fonts/SF-Pro.ttf

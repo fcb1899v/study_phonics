@@ -3,11 +3,13 @@ import 'constant.dart';
 import 'extension.dart';
 
 Widget appBarTitle() =>
-    Text('Study Phonics',
-      style: TextStyle(
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
-        fontSize: appBarFontSize,
+    Center(
+      child: Text('Study Phonics',
+        style: TextStyle(
+          color: whiteColor,
+          fontWeight: FontWeight.bold,
+          fontSize: appBarFontSize,
+        ),
       ),
     );
 
@@ -17,11 +19,11 @@ EdgeInsets mainPadding(double width) =>
       right: width * mainPaddingRate,
     );
 
-Widget alphabetChar(double width, String char) =>
+Widget charView(double width, String char) =>
     Text(char,
       style: TextStyle(
         fontWeight: FontWeight.bold,
-        color: Colors.black,
+        color: blackColor,
         fontSize: width * charSizeRate,
       ),
     );
@@ -64,7 +66,7 @@ ButtonStyle audioButtonStyle() =>
       ),
     );
 
-Widget audioButton(double width) =>
+Widget audioIcon(double width) =>
     SizedBox(
       width: width * audioButtonWidthRate,
       height: buttonHeight,
@@ -74,7 +76,7 @@ Widget audioButton(double width) =>
       ),
     );
 
-Widget operationButton(double width, IconData icon) =>
+Widget operationIcon(double width, IconData icon) =>
     SizedBox(
       width: width * operationButtonWidthRate,
       height: buttonHeight,
