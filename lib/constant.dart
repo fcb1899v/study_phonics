@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 //Main Size
 const double appBarFontSize = 28;
 const double mainPaddingRate = 0.05;
-const double alphabetWidthRate = 0.425;
+const double wordWidthRate = 0.425;
 const double charSizeRate = 0.25;
 const double wordSizeRate = 0.055;
-const double alphabetSpaceRate = 0.08;
+const double wordSpaceRate = 0.08;
+const double picMaxWidth = 250;
 const double audioButtonWidthRate = 0.5;
 const double operationButtonWidthRate = 0.12;
 const double buttonIconSize = 30;
@@ -45,5 +46,3 @@ class HexColor extends Color {
   }
   HexColor(final String hexColor) : super(_getColorFromHex(hexColor));
 }
-
-
