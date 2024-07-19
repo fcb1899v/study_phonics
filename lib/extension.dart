@@ -1,6 +1,27 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'constant.dart';
+
+extension ContextExt on BuildContext {
+  ///Common
+  double width() => MediaQuery.of(this).size.width;
+  double height() => MediaQuery.of(this).size.height;
+  String lang() => Localizations.localeOf(this).languageCode;
+
+  ///Size
+  double appBarHeight() => (width() < 600) ? width() * appBarHeightRate: appBarMaxHeight;
+  double picWidth() => (width() < 600) ? width() / 2 - 60: picMaxWidth;
+  double picHeight() => (width() < 600) ? width() / 2 - 60: picMaxWidth;
+  double charWidth(String char) => width() * ((char.length == 1) ? wordWidthRate: wordWideWidthRate);
+
+  ///List
+  int listRowNumber() => width() ~/ 100 + 1;
+
+  ///Admob
+  double admobHeight() => (height() < 600) ? 50: (height() < 1000) ? 50 + (height() - 600) / 8: 100;
+  double admobWidth() => width() - 100;
+}
 
 extension StringExt on String {
 
@@ -9,13 +30,13 @@ extension StringExt on String {
   }
 
   //this is sound[num]
-  Future<void> speakText(BuildContext context) async {
-    FlutterTts flutterTts = FlutterTts();
-    flutterTts.setLanguage('en-Us');
-    //flutterTts.setSpeechRate(0.5);
-    await flutterTts.stop();
+  Future<void> speakText(BuildContext context, FlutterTts flutterTts) async {
     await flutterTts.speak(this);
+    this.debugPrint();
   }
+
+  //char sound
+  String charSound() => (this.replaceAll("'", "").length == 1) ? this.replaceAll("'", ""): "";
 
   //this is char
   List<String> phonicsWord() {
@@ -234,17 +255,19 @@ extension StringExt on String {
   }
 }
 
+extension IntExt on int {
+
+  int backNumber() => (this == 0) ? allPhonics.length - 1: this - 1;
+  int nextNumber() => (this == allPhonics.length - 1) ? 0: this + 1;
+}
+
 extension ListStringExt on List<String> {
 
   List<String> wordSound() => [
     "${this[0]}${this[1]}${this[2]}",
     "${this[3]}${this[4]}${this[5]}"
   ];
-}
 
-extension DoubleExt on double {
-
-  int listRowNumber() => this ~/ 100 + 1;
-  double picWidth() => (this < 620) ? this / 2 - 60: 250;
-  double picHeight() => (this < 620) ? this / 2 - 60: 250;
+  String printWord() =>
+      "${wordSound()[0]}, ${wordSound()[1]}";
 }

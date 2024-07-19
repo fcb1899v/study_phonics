@@ -1,20 +1,32 @@
 import 'package:flutter/material.dart';
 
+//Common
+const String myTitle = "Study Phonics";
+const String myFont = "sfPro";
+
 //Main Size
 const double appBarFontSize = 28;
-const double mainPaddingRate = 0.05;
+const double appBarHeightRate = 0.15;
+const double appBarMaxHeight = 90;
+const double appBarImageWidthRate = 0.8;
+const double appBarImageMaxWidth = 480;
+const double horizontalMarginRate = 0.05;
+const double verticalMarginRate = 0.05;
 const double wordWidthRate = 0.425;
-const double charSizeRate = 0.25;
+const double wordWideWidthRate = 0.85;
+const double charSizeRate = 0.30;
 const double wordSizeRate = 0.055;
-const double wordSpaceRate = 0.08;
-const double picMaxWidth = 250;
-const double audioButtonWidthRate = 0.5;
-const double operationButtonWidthRate = 0.12;
+const double wordSpaceRate = 0.04;
+const double buttonSpaceRate = 0.02;
+const double picMaxWidth = 240;
+const double largeButtonWidthRate = 0.45;
+const double smallButtonWidthRate = 0.2;
 const double buttonIconSize = 30;
 const double buttonHeight = 50;
-const double buttonRadius = 50;
+const double buttonRadius = 30;
 
 //List Size
+const double listTopMargin = 10;
 const double listCharSize = 25;
 const double listMargin = 3;
 const double listPadding = 3;
@@ -33,6 +45,7 @@ final int numberPhonics = allPhonics.length;
 //Color
 const Color whiteColor = Colors.white;
 const Color blackColor = Colors.black;
+const Color transpColor = Colors.transparent;
 const Color blueColor = Colors.lightBlue;
 const Color pinkColor = Color.fromRGBO(255, 105, 180, 1); //'FF69B4'
 
@@ -46,3 +59,11 @@ class HexColor extends Color {
   }
   HexColor(final String hexColor) : super(_getColorFromHex(hexColor));
 }
+
+//Widget
+BoxShadow myShadow() => BoxShadow(
+  color: Colors.grey, //色
+  spreadRadius: 2,
+  blurRadius: 4,
+  offset: Offset(2, 2),
+);

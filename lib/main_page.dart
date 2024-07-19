@@ -1,212 +1,203 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'main_widget.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'admob_banner.dart';
 import 'constant.dart';
 import 'extension.dart';
-import 'admob.dart';
 
-class MainPage extends StatefulWidget {
-  const MainPage(this.index);
+class MainPage extends HookConsumerWidget {
   final int index;
-  @override
-  _MainPageState createState() => _MainPageState(index);
-}
-
-class _MainPageState extends State<MainPage> {
-  int index;
-  _MainPageState(this.index);
-
-  late double width;
-  late double height;
-  late List<String> phonicsList;
-  late String char;
-  late List<String> word;
-  late List<String> picture;
-  late List<String> sound;
-  late BannerAd? myBanner;
+  MainPage({required this.index});
 
   @override
-  void initState() {
-    super.initState();
-    setState(() {
-      if (Platform.isAndroid) myBanner = AdmobService().getBannerAd()!;
-    });
-    _setReturn();
-  }
+  Widget build(BuildContext context, WidgetRef ref) {
 
-  @override
-  void didChangeDependencies() {
-    "call didChangeDependencies".debugPrint();
-    super.didChangeDependencies();
-    setState((){
-      width = MediaQuery.of(context).size.width;
-      height = MediaQuery.of(context).size.height;
-    });
-    "width: $width, height: $height".debugPrint();
-  }
+    final FlutterTts flutterTts = FlutterTts();
+    final counter = useState(index);
+    final phonicsList = useState(allPhonics);
+    var char = phonicsList.value[counter.value];
+    var word = char.phonicsWord();
+    var picture = char.phonicsPicture();
+    var sound = char.phonicsWord().wordSound();
 
-  @override
-  void didUpdateWidget(oldWidget) {
-    "call didUpdateWidget".debugPrint();
-    super.didUpdateWidget(oldWidget);
-  }
-
-  @override
-  void deactivate() {
-    "call deactivate".debugPrint();
-    super.deactivate();
-  }
-
-  @override
-  void dispose() {
-    "call dispose".debugPrint();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) =>
-      Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios, color: whiteColor),
-            onPressed: () => Navigator.pop(context, true),
-          ),
-          title: appBarTitle(),
-        ),
-        body: Container(
-          padding: mainPadding(width),
-          child: Column(children: [
-            Spacer(flex: 1),
-            charView(width, char),
-            Spacer(flex: 1),
-            Row(children: [
-              alphabetWord(0),
-              Spacer(),
-              alphabetWord(1),
-            ]),
-            SizedBox(height: width * wordSpaceRate),
-            operationButtons(),
-            Spacer(flex: 2),
-            if (Platform.isAndroid) adMobWidget(context, myBanner!),
-          ]),
-        ),
-      );
-
-  Widget alphabetWord(int num) =>
-      SizedBox(
-        width: width * wordWidthRate,
-        child: Column(children: [
-          wordButton(num),
-          SizedBox(height: width * wordSpaceRate),
-          pictureButton(num),
-          SizedBox(height: width * wordSpaceRate),
-          audioButton(num)
-        ])
-      );
-
-  TextButton wordButton(int num) =>
-      TextButton(
-        onPressed: () => sound[num].speakText(context),
-        child: wordView(width, word, num),
-      );
-
-  TextButton pictureButton(int num) =>
-      TextButton(
-        onPressed: () => sound[num].speakText(context),
-        child: pictureView(width, picture[num]),
-      );
-
-  ElevatedButton audioButton(int num) =>
-      ElevatedButton(
-          onPressed: () => sound[num].speakText(context),
-          style: audioButtonStyle(),
-          child: audioIcon(width)
-      );
-
-  Widget operationButtons() =>
-      SizedBox(
-        width: width,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            returnButton(),
-            Spacer(), shuffleButton(),
-            Spacer(), backButton(),
-            Spacer(), forwardButton(),
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await flutterTts.setSharedInstance(true);
+        await flutterTts.setIosAudioCategory(
+          IosTextToSpeechAudioCategory.playback,
+          [
+            IosTextToSpeechAudioCategoryOptions.allowBluetooth,
+            IosTextToSpeechAudioCategoryOptions.allowBluetoothA2DP,
+            IosTextToSpeechAudioCategoryOptions.mixWithOthers,
+            IosTextToSpeechAudioCategoryOptions.defaultToSpeaker
           ]
+        );
+        await flutterTts.setVolume(1);
+        await flutterTts.setLanguage("en-US");
+        await flutterTts.setSpeechRate(0.5);
+        "Counter: ${counter.value}, PhonicsList: ${phonicsList.value}".debugPrint();
+      });
+      return null;
+    }, []);
+
+    //0: Reset, 1: Shuffle, 2: Back, 3:Next
+    final icons = [
+      Icons.keyboard_return,
+      Icons.shuffle,
+      Icons.arrow_back,
+      Icons.arrow_forward
+    ];
+
+    operations(int i) {
+      final List<String> list = List<String>.from(allPhonics);
+      if (i == 1) list.shuffle();
+      counter.value =
+        (i == 2) ? counter.value.backNumber():
+        (i == 3) ? counter.value.nextNumber():
+        index;
+      phonicsList.value =
+        (i == 0) ? allPhonics:
+        (i == 1) ? list:
+        phonicsList.value;
+      "Counter: ${counter.value}, PhonicsList: ${phonicsList.value}".debugPrint();
+    }
+
+    useEffect(() {
+      char = phonicsList.value[counter.value];
+      word = char.phonicsWord();
+      picture = char.phonicsPicture();
+      sound = char.phonicsWord().wordSound();
+      return null;
+    }, [counter.value, phonicsList.value]);
+
+    return Scaffold(
+      ///AppBar
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios,
+            color: whiteColor,
+            shadows: [myShadow()],
+          ),
+          onPressed: () => Navigator.pop(context, true),
         ),
-      );
-
-  ElevatedButton returnButton() =>
-      ElevatedButton(
-        onPressed: () => _setReturn(),
-        style: operationButtonStyle(),
-        child: operationIcon(width, Icons.keyboard_return)
-      );
-
-  ElevatedButton shuffleButton() =>
-      ElevatedButton(
-        onPressed: () => _setShuffle(),
-        style: operationButtonStyle(),
-        child: operationIcon(width, Icons.shuffle)
-      );
-
-  ElevatedButton backButton() =>
-      ElevatedButton(
-        onPressed: () => _setBack(),
-        style: operationButtonStyle(),
-        child: operationIcon(width, Icons.arrow_back)
-      );
-
-  ElevatedButton forwardButton() =>
-      ElevatedButton(
-        onPressed: () => _setForward(),
-        style: operationButtonStyle(),
-        child: operationIcon(width, Icons.arrow_forward)
-      );
-
-  _setReturn() {
-    setState(() => phonicsList = [
-      "a", "a'", "b", "c", "c'", "d", "e", "f", "g", "g'", "h", "i", "i'", "j", "k",
-      "l", "m", "n", "o", "p", "q", "r", "s", "s'", "t", "u", "v", "w", "x", "y", "z",
-      "er", "ir", "or", "ur", "ear'", "ie", "igh", "-y", "_i_e", "ou", "ow",
-      "ēē", "ēā", "īē", "ey", "_e_e", "eer", "ear", "ue", "ui", "ew", "ōō", "ōū",
-      "_u_e", "oo", "ai", "ay", "_a_e", "air", "ea", "au", "aw", "our", "oy",
-      "oa", "ōw", "all", "ph", "ch", "sh", "th", "th'", "wh", "ck", "ng", "lly"
-    ]);
-    _setNewWord();
-  }
-
-  _setShuffle() {
-    setState(() => phonicsList.shuffle());
-    _setNewWord();
-  }
-
-  _setBack() {
-    setState(() {
-      phonicsList.insert(0, phonicsList[phonicsList.length - 1]);
-      phonicsList.removeAt(phonicsList.length - 1);
-    });
-    _setNewWord();
-  }
-
-  _setForward() {
-    setState(() {
-      phonicsList.insert(phonicsList.length, phonicsList[0]);
-      phonicsList.removeAt(0);
-    });
-    _setNewWord();
-  }
-
-  _setNewWord() {
-    setState(() {
-      char = phonicsList[index];
-      word = phonicsList[index].phonicsWord();
-      picture = phonicsList[index].phonicsPicture();
-      sound = word.wordSound();
-    });
-    "$char, ${word.printWord()}".debugPrint();
+        backgroundColor: blueColor,
+        title: Text(myTitle,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: appBarFontSize,
+            color: whiteColor,
+            shadows: [myShadow()],
+          ),
+        ),
+        centerTitle: true,
+      ),
+      ///Body
+      body: Container(
+        margin: EdgeInsets.symmetric(horizontal: context.width() * horizontalMarginRate),
+        child: Column(children: [
+          Spacer(flex: 1),
+          ///Char
+          GestureDetector(
+            onTap: () => char.charSound().speakText(context, flutterTts),
+            child: Row(children: [ for (int i = 0; i < 2; i++) ... {
+              if (i == 0 || char.length == 1) Container(
+                width: context.charWidth(char),
+                margin: EdgeInsets.only(bottom: context.height() * wordSpaceRate),
+                alignment: Alignment.center,
+                child: Text((i == 0) ? char: char.toUpperCase(),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: context.width() * charSizeRate,
+                    shadows: [myShadow()],
+                  ),
+                ),
+              ),
+              if (i == 0 && char.length == 1) Spacer(flex: 1),
+            }]),
+          ),
+          Row(children: [ for (int i = 0; i < 2; i++) ... {
+            GestureDetector(
+              onTap: () => sound[i].speakText(context, flutterTts),
+              child: Container(
+                width: context.width() * wordWidthRate,
+                margin: EdgeInsets.only(bottom: context.height() * wordSpaceRate),
+                child: Column(children: [
+                  ///Word
+                  Container(
+                    margin: EdgeInsets.only(bottom: context.height() * wordSpaceRate),
+                    child: RichText(
+                      text: TextSpan(
+                        style: TextStyle(
+                          color: blackColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: context.width() * wordSizeRate,
+                          shadows: [myShadow()],
+                        ),
+                        children: [ for (int j = 0; j < 3; j++)
+                          TextSpan(text: word[3 * i + j],
+                            style: (j == 1) ? TextStyle(
+                              color: pinkColor,
+                              decoration: TextDecoration.underline,
+                            ): null
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  ///Picture
+                  Container(
+                    width: context.picWidth(),
+                    height: context.picHeight(),
+                    margin: EdgeInsets.only(bottom: context.height() * wordSpaceRate),
+                    child: Image.asset(picture[i]),
+                  ),
+                  ///Audio Button
+                  Container(
+                    width: context.width() * largeButtonWidthRate,
+                    height: buttonHeight,
+                    decoration: BoxDecoration(
+                      color: blueColor,
+                      borderRadius: BorderRadius.circular(buttonRadius),
+                      boxShadow: [myShadow()],
+                    ),
+                    child: Icon(Icons.audiotrack,
+                      color: whiteColor,
+                      size: buttonIconSize,
+                      shadows: [myShadow()],
+                    ),
+                  )
+                ]),
+              )
+            ),
+            if (i == 0) Spacer(flex: 1),
+          }]),
+          Row(children: [ for (int i = 0; i < 4; i++) ... {
+            ///Operation Button
+            GestureDetector(
+              onTap: () => operations(i),
+              child: Container(
+                width: context.width() * smallButtonWidthRate,
+                height: buttonHeight,
+                  decoration: BoxDecoration(
+                    color: pinkColor,
+                    borderRadius: BorderRadius.circular(buttonRadius),
+                    boxShadow: [myShadow()],
+                  ),
+                  child: Icon(icons[i],
+                    color: whiteColor,
+                    size: buttonIconSize,
+                    shadows: [myShadow()],
+                  ),
+                )
+            ),
+            if (i != 3) Spacer(flex: 1),
+          }]),
+          Spacer(flex: 1),
+          AdBannerWidget(),
+        ]),
+      ),
+    );
   }
 }
 
